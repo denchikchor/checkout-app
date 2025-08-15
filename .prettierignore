@@ -1,0 +1,27 @@
+# Builds / caches
+.next
+out
+dist
+build
+coverage
+.cache
+.turbo
+
+# Packages
+node_modules
+
+# IDE / OS
+.vscode
+.idea
+.DS_Store
+
+# Locks / mins / generated
+pnpm-lock.yaml
+yarn.lock
+package-lock.json
+**/*.min.*
+**/*.gen.*
+**/*.d.ts
+
+# Static assets
+public/*
