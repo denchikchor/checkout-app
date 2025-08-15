@@ -1,22 +1,14 @@
-import { Suspense } from "react";
-import { Container, Grid, Skeleton } from "@mui/material";
-import CartDrawer from "@/components/CartDrawer";
-import ProductDetailsClient from "./ProductDetailsClient";
+import { Suspense } from 'react';
+import { Container} from '@mui/material';
+import CartDrawer from '@/components/CartDrawer';
+import ProductDetailsClient from './ProductDetailsClient';
+import ProductSkeleton from '@/components/ProductSkeleton';
 
 export default function ProductPage() {
   return (
     <Container sx={{ py: 3 }}>
       <Suspense
-        fallback={
-          <Grid container spacing={2}>
-            <Grid size={{ xs: 12, md: 6 }}>
-              <Skeleton variant="rectangular" height={560} />
-            </Grid>
-            <Grid size={{ xs: 12, md: 6 }}>
-              <Skeleton variant="rectangular" height={660} />
-            </Grid>
-          </Grid>
-        }
+        fallback={<ProductSkeleton />}
       >
         <ProductDetailsClient />
       </Suspense>

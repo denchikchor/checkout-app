@@ -2,7 +2,7 @@ cat > README-quick.md << 'EOF'
 
 # Checkout Demo (Next.js + TypeScript + MUI)
 
-**Live demo:** https://checkout-app-orcin-six.vercel.app/
+**Live demo:** https://checkout-app-eight.vercel.app/
 
 Simple checkout demo using Next.js (App Router), TypeScript, and MUI v7. Products come from DummyJSON.
 

@@ -1,19 +1,13 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import {
-  Grid,
-  Skeleton,
-  Typography,
-  Card,
-  CardMedia,
-  CardContent,
-  Button,
-  Stack,
-  Box,
-} from "@mui/material";
-import { useCart } from "@/cart/CartContext";
+  Grid, Typography, Card, CardMedia, CardContent, Button,
+  Stack, Chip, Rating, Divider, List, ListItem, ListItemText,
+} from '@mui/material';
+import { useCart } from '@/cart/CartContext';
+import ProductSkeleton from '@/components/ProductSkeleton';
 
 type ProductDetail = {
   id: number;
@@ -38,13 +32,10 @@ type ProductDetail = {
 
 export default function ProductDetailsClient() {
   const sp = useSearchParams();
-  const id = sp.get("product_id");
+  const id = sp.get('product_id');
 
   const [loading, setLoading] = useState(true);
   const [product, setProduct] = useState<ProductDetail | null>(null);
-  const [imgLoaded, setImgLoaded] = useState(false);
-  const [imgError, setImgError] = useState(false);
-
   const { addItem, setOpen, money } = useCart();
 
   useEffect(() => {
@@ -53,126 +44,114 @@ export default function ProductDetailsClient() {
       setLoading(false);
       return;
     }
-    (async () => {
+
+    async function load() {
       try {
         const res = await fetch(`https://dummyjson.com/products/${id}`);
-        if (!res.ok) throw new Error("Not found");
+        if (!res.ok) throw new Error('Not found');
         const data = (await res.json()) as ProductDetail;
         if (!ignore) setProduct(data);
       } finally {
         if (!ignore) setLoading(false);
       }
-    })();
-    return () => {
-      ignore = true;
-    };
+    }
+
+    load();
+    return () => { ignore = true; };
   }, [id]);
 
-  if (!id) {
-    return <Typography>Missing product_id in URL</Typography>;
-  }
+  if (!id) return <Typography>Missing product_id in URL</Typography>;
 
-  if (loading) {
-    return (
-      <Grid container spacing={2}>
-        <Grid size={{ xs: 12, md: 6 }}>
-          <Skeleton variant="rectangular" height={560} />
-        </Grid>
-        <Grid size={{ xs: 12, md: 6 }}>
-          <Skeleton variant="rectangular" height={660} />
-        </Grid>
-      </Grid>
-    );
-  }
+  if (loading) return <ProductSkeleton />
 
-  if (!product) {
-    return <Typography>Product not found</Typography>;
-  }
+  if (!product) return <Typography>Product not found</Typography>;
 
   return (
     <Grid container spacing={3}>
       <Grid size={{ xs: 12, md: 6 }}>
-        <Card sx={{ overflow: "hidden", borderRadius: 1 }}>
-          <Box
-            sx={{
-              position: "relative",
-              width: "100%",
-              height: { xs: 320, md: 560 },
-              overflow: "hidden",
-            }}
-          >
-            <CardMedia
-              component="img"
-              image={product.thumbnail}
-              alt={product.title}
-              loading="lazy"
-              decoding="async"
-              onLoad={() => setImgLoaded(true)}
-              onError={() => setImgError(true)}
-              sx={{
-                position: "absolute",
-                inset: 0,
-                width: "100%",
-                height: "100%",
-                objectFit: "contain",
-                opacity: imgLoaded && !imgError ? 1 : 0,
-                transition: "opacity .2s ease",
-                display: "block",
-              }}
-            />
-            {!imgLoaded && !imgError && (
-              <Skeleton
-                variant="rectangular"
-                animation="wave"
-                sx={{ position: "absolute", inset: 0 }}
-              />
-            )}
-            {imgError && (
-              <Box
-                sx={{
-                  position: "absolute",
-                  inset: 0,
-                  display: "grid",
-                  placeItems: "center",
-                  bgcolor: "background.default",
-                }}
-              >
-                <Typography variant="caption" color="text.secondary">
-                  Image failed to load
-                </Typography>
-              </Box>
-            )}
-          </Box>
+        <Card>
+          <CardMedia component="img" image={product.thumbnail} alt={product.title} />
         </Card>
       </Grid>
 
       <Grid size={{ xs: 12, md: 6 }}>
         <Card>
           <CardContent>
-            <Typography variant="h5" gutterBottom>
-              {product.title}
-            </Typography>
+            {/* Title */}
+            <Typography variant="h5" gutterBottom>{product.title}</Typography>
 
-            <Stack direction="row" spacing={1} sx={{ mb: 1, flexWrap: "wrap" }}>
-              {product.category && (
-                <Typography variant="caption">{product.category}</Typography>
-              )}
-              {product.brand && (
-                <Typography variant="caption" color="text.secondary">
-                  • {product.brand}
-                </Typography>
+            {/* Category / Brand */}
+            <Stack direction="row" spacing={1} sx={{ mb: 1, flexWrap: 'wrap' }}>
+              {product.category && <Chip label={product.category} size="small" />}
+              {product.brand && <Chip label={product.brand} size="small" variant="outlined" />}
+            </Stack>
+
+            {/* Rating + Stock */}
+            <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
+              <Rating
+                name="product-rating"
+                value={typeof product.rating === 'number' ? product.rating : 0}
+                precision={0.1}
+                readOnly
+                size="small"
+              />
+              <Typography variant="body2" color="text.secondary">
+                {typeof product.rating === 'number' ? product.rating.toFixed(1) : '—'}
+              </Typography>
+              {typeof product.stock === 'number' && (
+                <Chip label={`Stock: ${product.stock}`} size="small" sx={{ ml: 'auto' }} />
               )}
             </Stack>
 
-            <Typography variant="h6" sx={{ mb: 2 }}>
-              {money(product.price)}
-            </Typography>
+            {/* Price */}
+            <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
+              <Typography variant="h6">{money(product.price)}</Typography>
+            </Stack>
 
-            <Typography variant="body1" sx={{ mb: 2 }}>
-              {product.description}
-            </Typography>
+            {/* Description */}
+            <Typography variant="body1" sx={{ mb: 2 }}>{product.description}</Typography>
 
-            <Stack direction="row" spacing={1}>
+            <Divider sx={{ my: 2 }} />
+
+            {/* Key details */}
+            <List dense sx={{ py: 0 }}>
+              {product.sku && (
+                <ListItem disableGutters>
+                  <ListItemText primary="SKU" secondary={product.sku} />
+                </ListItem>
+              )}
+              {typeof product.weight === 'number' && (
+                <ListItem disableGutters>
+                  <ListItemText primary="Weight" secondary={`${product.weight}`} />
+                </ListItem>
+              )}
+              {product.dimensions && (
+                <ListItem disableGutters>
+                  <ListItemText
+                    primary="Dimensions"
+                    secondary={`${product.dimensions.width} × ${product.dimensions.height} × ${product.dimensions.depth}`}
+                  />
+                </ListItem>
+              )}
+              {product.warrantyInformation && (
+                <ListItem disableGutters>
+                  <ListItemText primary="Warranty" secondary={product.warrantyInformation} />
+                </ListItem>
+              )}
+              {product.shippingInformation && (
+                <ListItem disableGutters>
+                  <ListItemText primary="Shipping" secondary={product.shippingInformation} />
+                </ListItem>
+              )}
+              {product.availabilityStatus && (
+                <ListItem disableGutters>
+                  <ListItemText primary="Availability" secondary={product.availabilityStatus} />
+                </ListItem>
+              )}
+            </List>
+
+            {/* CTA */}
+            <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
               <Button
                 variant="contained"
                 onClick={() => {
