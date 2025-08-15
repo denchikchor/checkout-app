@@ -4,6 +4,11 @@ cat > README-quick.md << 'EOF'
 
 **Live demo:** https://checkout-app-eight.vercel.app/
 
+## Promo codes
+
+- `SAVE10` — 10% off  
+- `SAVE20` — 20% off
+---
 Simple checkout demo using Next.js (App Router), TypeScript, and MUI v7. Products come from DummyJSON.
 
 ## Stack
